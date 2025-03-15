@@ -19,6 +19,7 @@ namespace Chess_App
         public Chessboard(string FEN_string = Pieces.Default_Starting_Position)
         {
             Initialize_Pieces(FEN_string);
+            Initialize_Board();
         }
         public void Initialize_Pieces(string FEN_string)
         {
@@ -26,7 +27,17 @@ namespace Chess_App
         }
         public void Initialize_Board()
         {
-
+            squares = new Square[Variables.Board_Size, Variables.Board_Size];
+            Moveset moveset = Moves.Get_All_Possible_Moves(this);
+            foreach (Position pin in moveset.pins)
+                pieces[pin.row, pin.column].pinned = true;
+            foreach (Move move in moveset.moves)
+            {
+                Position target = move.end_pos;
+                if (move.possible_capture)
+                    squares[target.row, target.column] = new Square { danger_type = move.piece & 24 };
+                    
+            }
         }
     }
 }

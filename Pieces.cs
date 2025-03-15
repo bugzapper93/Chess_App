@@ -8,9 +8,10 @@ namespace Chess_App
 {
     struct Piece
     {
-        public int value { get; set; }
-        public Position position { get; set; }
-        public bool has_moved { get; set; }
+        public int value;
+        public Position position;
+        public bool has_moved;
+        public bool pinned;
     }
     class Pieces
     {
@@ -55,6 +56,14 @@ namespace Chess_App
         {
             return pieces[pos.row, pos.column].value;
         }
+        public static bool Check_Move(Piece[,] pieces, Position start, Position end)
+        {
+            if (end.row >= 8 || end.row < 0 || end.column >= 8 || end.column < 0)
+                return false;
+            if ((pieces[start.row, start.column].value & 24) == (pieces[end.row, end.column].value & 24))
+                return false;
+            return true;
+        }
         public static Piece[,] Parse_FEN(string FEN_string)
         {
             Piece[,] pieces = new Piece[Variables.Board_Size, Variables.Board_Size];
@@ -92,11 +101,6 @@ namespace Chess_App
                 }
             }
             return pieces;
-
-            //public static Panel Init_Piece(int value, Position position)
-            //{
-            //    return null;
-            //}
         }
     }
 }
