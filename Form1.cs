@@ -88,6 +88,20 @@ namespace Chess_App
                 {
                     background[i, j].BackColor = (i + j) % 2 == 0 ? Color.Green : Color.Beige;
                 }
+            ShowDanger();
+        }
+        private void ShowDanger()
+        {
+            for (int row = 0; row < Variables.Board_Size; row++)
+            {
+                for (int col = 0; col < Variables.Board_Size; col++)
+                {
+                    if (board.squares[row, col].danger_type == Pieces.White)
+                        background[row, col].BackColor = Color.Yellow;
+                    if (board.squares[row, col].danger_type == Pieces.Black)
+                        background[row, col].BackColor = Color.Orange;
+                }
+            }
         }
         private bool Is_Valid_Select(Piece piece)
         {

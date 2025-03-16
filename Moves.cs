@@ -316,8 +316,8 @@ namespace Chess_App
                             break;
 
                         case Pieces.Queen:
-                            row_directions = new int[] { 1, 1, -1, -1, 0, 0, 1, -1 };
-                            col_directions = new int[] { 1, -1, 1, -1, 1, -1, 0, 0 };
+                            row_directions = [1, 1, -1, -1, 0, 0, 1, -1];
+                            col_directions = [1, -1, 1, -1, 1, -1, 0, 0];
 
                             for (int d = 0; d < 8; d++)
                             {
@@ -416,7 +416,10 @@ namespace Chess_App
                                 {
                                     continue;
                                 }
-
+                                if ((board.squares[considered_position.row, considered_position.column].danger_type == Pieces.White && color == Pieces.White) || (board.squares[considered_position.row, considered_position.column].danger_type == Pieces.Black && color == Pieces.Black))
+                                {
+                                    continue;
+                                }
                                 int square_value = Pieces.Get_Value(board.pieces, considered_position);
 
                                 if (square_value == 0)

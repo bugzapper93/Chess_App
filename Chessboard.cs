@@ -51,6 +51,13 @@ namespace Chess_App
         }
         private void Update_Danger()
         {
+            for (int row = 0; row < Variables.Board_Size; row++)
+            {
+                for (int col = 0; col < Variables.Board_Size; col++)
+                {
+                    squares[row, col].danger_type = 0;
+                }
+            }
             foreach (Move move in possible_moves_pins.moves)
             {
                 int row = move.end_pos.row;
@@ -93,12 +100,12 @@ namespace Chess_App
             {
                 en_passant_target = new Position { row = start_pos.row + (((piece_value & 24) == Pieces.White) ? -1 : 1), column = start_pos.column };
                 en_passant_target_color = piece_value & 24;
-                MessageBox.Show($"HELLO row: {en_passant_target.Value.row} col: {en_passant_target.Value.column}");
             } 
             else
                 en_passant_target = null;
 
             possible_moves_pins = Moves.Get_All_Possible_Moves(this);
+            Update_Danger();
             is_white_turn = !is_white_turn;
         }
     }
