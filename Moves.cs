@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Chess_App
 {
-    struct Position
+    public struct Position
     {
         public int row;
         public int column;
     }
-    struct Move
+    public struct Move
     {
         public int piece;
         public Position start_pos;
@@ -20,8 +20,9 @@ namespace Chess_App
         public bool capture;
         public bool possible_capture;
         public int captured_piece;
+        public Position capture_pos;
     }
-    struct Moveset
+    public struct Moveset
     {
         public List<Move> moves;
         public List<Position> pins;
@@ -49,6 +50,7 @@ namespace Chess_App
                     int base_piece = temp_piece & 7;
                     int color = temp_piece & 24;
                     Position considered_position;
+                    Position default_capture = new Position { row = -1, column = -1 };
 
                     switch (base_piece)
                     {
@@ -67,7 +69,8 @@ namespace Chess_App
                                     start_pos = start, 
                                     end_pos = considered_position, 
                                     capture = false, 
-                                    possible_capture = false, 
+                                    possible_capture = false,
+                                    capture_pos = default_capture
                                 });
 
                             if ((color == Pieces.White && i == 6) || (color == Pieces.Black && i == 1))
@@ -81,21 +84,37 @@ namespace Chess_App
                                         end_pos = considered_position,
                                         capture = false,
                                         possible_capture = false,
+                                        capture_pos = default_capture
                                     });
                             }
 
                             foreach (int var in vars)
                             {
                                 considered_position = new Position { row = i + row_diff, column = j + var };
-                                if (Pieces.Check_Move(board.pieces, start, considered_position) && Pieces.Get_Value(board.pieces, considered_position) != 0 && Pieces.Check_Move(board.pieces, start, considered_position))
-                                    moves.Add(new Move 
-                                    { 
-                                        piece = temp_piece, 
+                                if (Pieces.Check_Move(board.pieces, start, considered_position) && Pieces.Get_Value(board.pieces, considered_position) == 0 && board.en_passant_target.HasValue && Compare_Positions(considered_position, board.en_passant_target.Value))
+                                {
+                                    Position pawn_target_pos = new Position { row = i, column = j + var };
+                                    moves.Add(new Move
+                                    {
+                                        piece = temp_piece,
                                         start_pos = start,
-                                        end_pos = considered_position, 
-                                        capture = true, 
-                                        possible_capture = true, 
-                                        captured_piece = Pieces.Get_Value(board.pieces, considered_position) 
+                                        end_pos = considered_position,
+                                        capture = true,
+                                        possible_capture = true,
+                                        captured_piece = Pieces.Get_Value(board.pieces, pawn_target_pos),
+                                        capture_pos = new Position { row = i, column = j + var }
+                                    });
+                                }
+                                if (Pieces.Check_Move(board.pieces, start, considered_position) && Pieces.Get_Value(board.pieces, considered_position) != 0 && Pieces.Check_Move(board.pieces, start, considered_position))
+                                    moves.Add(new Move
+                                    {
+                                        piece = temp_piece,
+                                        start_pos = start,
+                                        end_pos = considered_position,
+                                        capture = true,
+                                        possible_capture = true,
+                                        captured_piece = Pieces.Get_Value(board.pieces, considered_position),
+                                        capture_pos = considered_position
                                     });
                             }
                             break;
@@ -122,24 +141,11 @@ namespace Chess_App
                                                 end_pos = considered_position,
                                                 capture = capture,
                                                 possible_capture = true,
-                                                captured_piece = capture ? Pieces.Get_Value(board.pieces, considered_position) : 0
+                                                captured_piece = capture ? Pieces.Get_Value(board.pieces, considered_position) : 0,
+                                                capture_pos = capture ? considered_position : default_capture
                                             });
                                         }
                                     }
-                                    //considered_position = new Position { row = i + row, column = j + col };
-                                    //if (!Pieces.Check_Move(board.pieces, start, considered_position))
-                                    //    break;
-                                    //if (Pieces.Get_Value(board.pieces, considered_position) != 0)
-                                    //    capture = true;
-                                    //if ((row % 2 == 0 && (col == -1 || col == 1)) && ((col % 2 == 0 && (row == -1 || row == 1)) && Pieces.Check_Move(board.pieces, start, considered_position)))
-                                    //    moves.Add(new Move
-                                    //    {
-                                    //        piece = temp_piece,
-                                    //        start_pos = start,
-                                    //        end_pos = considered_position,
-                                    //        capture = capture,
-                                    //        possible_capture = true
-                                    //    });
                                 }
                             }
                             break;
@@ -212,6 +218,7 @@ namespace Chess_App
                                             capture = true,
                                             possible_capture = true,
                                             captured_piece = square_value,
+                                            capture_pos = considered_position
                                         });
                                         
                                         break;
@@ -297,7 +304,8 @@ namespace Chess_App
                                             end_pos = considered_position,
                                             capture = true,
                                             possible_capture = true,
-                                            captured_piece = square_value
+                                            captured_piece = square_value,
+                                            capture_pos = considered_position
                                         });
 
                                         break;
@@ -382,7 +390,8 @@ namespace Chess_App
                                             end_pos = considered_position,
                                             capture = true,
                                             possible_capture = true,
-                                            captured_piece = square_value
+                                            captured_piece = square_value,
+                                            capture_pos = considered_position
                                         });
                                         break;
                                     }
@@ -430,7 +439,8 @@ namespace Chess_App
                                         end_pos = considered_position,
                                         capture = true,
                                         possible_capture = true,
-                                        captured_piece = square_value
+                                        captured_piece = square_value,
+                                        capture_pos = considered_position
                                     });
                                 }
                             }
@@ -439,6 +449,12 @@ namespace Chess_App
                 }
             Moveset moveset = new Moveset { moves = moves, pins = pins };
             return moveset;
+        }
+        public static bool Compare_Positions(Position pos_1, Position pos_2)
+        {
+            if (pos_1.row == pos_2.row && pos_1.column == pos_2.column)
+                return true;
+            return false;
         }
     }
 }
