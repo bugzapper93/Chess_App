@@ -105,7 +105,7 @@ namespace Chess_App
                                         capture_pos = new Position { row = i, column = j + var }
                                     });
                                 }
-                                if (Pieces.Check_Move(board.pieces, start, considered_position) && Pieces.Get_Value(board.pieces, considered_position) != 0 && Pieces.Check_Move(board.pieces, start, considered_position))
+                                if (Pieces.Check_Move(board.pieces, start, considered_position) && Pieces.Get_Value(board.pieces, considered_position) != 0)
                                     moves.Add(new Move
                                     {
                                         piece = temp_piece,
@@ -416,10 +416,13 @@ namespace Chess_App
                                 {
                                     continue;
                                 }
-                                if ((board.squares[considered_position.row, considered_position.column].danger_type == Pieces.White && color == Pieces.White) || (board.squares[considered_position.row, considered_position.column].danger_type == Pieces.Black && color == Pieces.Black))
+                                if ((board.squares[considered_position.row, considered_position.column].danger_white && color == Pieces.Black))
                                 {
                                     continue;
                                 }
+                                if ((board.squares[considered_position.row, considered_position.column].danger_black && color == Pieces.White))
+                                    continue;
+
                                 int square_value = Pieces.Get_Value(board.pieces, considered_position);
 
                                 if (square_value == 0)

@@ -96,10 +96,12 @@ namespace Chess_App
             {
                 for (int col = 0; col < Variables.Board_Size; col++)
                 {
-                    if (board.squares[row, col].danger_type == Pieces.White)
+                    if (board.squares[row, col].danger_white)
                         background[row, col].BackColor = Color.Yellow;
-                    if (board.squares[row, col].danger_type == Pieces.Black)
+                    if (board.squares[row, col].danger_black)
                         background[row, col].BackColor = Color.Orange;
+                    if (board.squares[row, col].danger_white && board.squares[row, col].danger_black)
+                        background[row, col].BackColor = Color.Blue;
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.Devices;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,8 @@ namespace Chess_App
 {
     struct Square
     {
-        public int danger_type;
+        public bool danger_white;
+        public bool danger_black;
     }
     class Chessboard
     {
@@ -39,15 +41,15 @@ namespace Chess_App
         {
             squares = new Square[Variables.Board_Size, Variables.Board_Size];
             Moveset moveset = Moves.Get_All_Possible_Moves(this);
-            foreach (Position pin in moveset.pins)
-                pieces[pin.row, pin.column].pinned = true;
-            foreach (Move move in moveset.moves)
-            {
-                Position target = move.end_pos;
-                if (move.possible_capture)
-                    squares[target.row, target.column] = new Square { danger_type = move.piece & 24 };
+            //foreach (Position pin in moveset.pins)
+            //    pieces[pin.row, pin.column].pinned = true;
+            //foreach (Move move in moveset.moves)
+            //{
+            //    Position target = move.end_pos;
+            //    if (move.possible_capture)
+            //        squares[target.row, target.column] = new Square { danger_type = move.piece & 24 };
                     
-            }
+            //}
         }
         private void Update_Danger()
         {
@@ -55,17 +57,39 @@ namespace Chess_App
             {
                 for (int col = 0; col < Variables.Board_Size; col++)
                 {
-                    squares[row, col].danger_type = 0;
+                    squares[row, col].danger_white = false;
+                    squares[row, col].danger_black = false;
                 }
             }
             foreach (Move move in possible_moves_pins.moves)
             {
                 int row = move.end_pos.row;
                 int col = move.end_pos.column;
+                int danger_color = (move.piece & 24);
                 if (move.possible_capture)
                 {
-                    int danger_color = (move.piece & 24);
-                    squares[row, col].danger_type = danger_color;
+                    if (danger_color == Pieces.White)
+                        squares[row, col].danger_white = true;
+                    if (danger_color == Pieces.Black)
+                        squares[row, col].danger_black = true;
+                }
+                // Different handling for pawns
+                if ((move.piece & 7) == Pieces.Pawn)
+                {
+                    int row_diff = (move.piece & 24) == Pieces.White ? -1 : 1;
+                    int[] vars = [-1, 1];
+                    foreach (int var in vars)
+                    {
+                        Position considered_position = new Position { row = move.start_pos.row + row_diff, column = move.start_pos.column + var };
+                        if (Pieces.Check_Move(pieces, move.start_pos, considered_position))
+                        {
+                            if (danger_color == Pieces.White)
+                                squares[considered_position.row, considered_position.column].danger_white = true;
+                            if (danger_color == Pieces.Black)
+                                squares[considered_position.row, considered_position.column].danger_black = true;
+                            
+                        }
+                    }
                 }
             }
         }
