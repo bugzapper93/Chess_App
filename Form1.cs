@@ -166,8 +166,8 @@ namespace Chess_App
                     selected.Location = Get_Target_Location(target_row, target_col);
                     piecesDisplay[target_row, target_col] = selected;
                     piecesDisplay[selected_position.row, selected_position.column] = null;
-                    Move makie = new Move { start_pos = selected_position, end_pos = target_pos };
-                    board.Make_Move(makie, false);
+                    
+                    board.Make_Move(move, false);
                 }
                 else
                 {

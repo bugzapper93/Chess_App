@@ -91,7 +91,7 @@ namespace Chess_App
                             foreach (int var in vars)
                             {
                                 considered_position = new Position { row = i + row_diff, column = j + var };
-                                if (Pieces.Check_Move(board.pieces, start, considered_position) && Pieces.Get_Value(board.pieces, considered_position) == 0 && board.en_passant_target.HasValue && Compare_Positions(considered_position, board.en_passant_target.Value))
+                                if (Pieces.Check_Move(board.pieces, start, considered_position) && board.en_passant_target_color != color && Pieces.Get_Value(board.pieces, considered_position) == 0 && board.en_passant_target.HasValue && Compare_Positions(considered_position, board.en_passant_target.Value))
                                 {
                                     Position pawn_target_pos = new Position { row = i, column = j + var };
                                     moves.Add(new Move

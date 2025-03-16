@@ -16,6 +16,7 @@ namespace Chess_App
         public Square[,] squares;
         public Position? en_passant_target = null;
         public Moveset possible_moves_pins;
+        public int? en_passant_target_color = null;
         public bool is_white_turn = true;
         string current_moves = "";
         public Chessboard(string FEN_string = Pieces.Default_Starting_Position)
@@ -61,13 +62,6 @@ namespace Chess_App
                 }
             }
         }
-        public Move Get_Move(Position start_pos, Position end_pos)
-        {
-            foreach (Move move in possible_moves_pins.moves)
-                if (Moves.Compare_Positions(start_pos, move.start_pos) && Moves.Compare_Positions(end_pos, move.end_pos))
-                    return move;
-            return new Move();
-        }
         public bool Check_If_Valid_Move(Position start_pos, Position end_pos, out Move out_move)
         {
             foreach (Move move in possible_moves_pins.moves)
@@ -89,14 +83,18 @@ namespace Chess_App
             Position capture_pos = move.capture_pos;
             int piece_value = move.piece;
 
-            pieces[end_pos.row, end_pos.column] = pieces[start_pos.row, start_pos.column];
-            pieces[start_pos.row, start_pos.column] = new Piece { value = 0 };
-
             if (move.capture)
                 pieces[capture_pos.row, capture_pos.column] = new Piece { value = 0 };
 
+            pieces[end_pos.row, end_pos.column] = pieces[start_pos.row, start_pos.column];
+            pieces[start_pos.row, start_pos.column] = new Piece { value = 0 };
+
             if ((piece_value & 7) == Pieces.Pawn && Math.Abs(start_pos.row - end_pos.row) == 2)
-                en_passant_target = new Position { row = start_pos.row + (((piece_value & 24) == Pieces.White) ? 1 : -1), column = start_pos.column };
+            {
+                en_passant_target = new Position { row = start_pos.row + (((piece_value & 24) == Pieces.White) ? -1 : 1), column = start_pos.column };
+                en_passant_target_color = piece_value & 24;
+                MessageBox.Show($"HELLO row: {en_passant_target.Value.row} col: {en_passant_target.Value.column}");
+            } 
             else
                 en_passant_target = null;
 
