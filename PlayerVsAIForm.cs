@@ -1,8 +1,17 @@
-﻿using System.Text.RegularExpressions;
-using System.Windows;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
+
 namespace Chess_App
 {
-    public partial class Form1 : Form
+    public partial class PlayerVsAIForm : Form
     {
         Chessboard board;
 
@@ -16,7 +25,7 @@ namespace Chess_App
         Color boardFirstColor = Color.FromArgb(208, 206, 241);
         Color boardSecondColor = Color.FromArgb(35, 41, 76);
         private NotationPanelManager notationPanelManager;
-        public Form1()
+        public PlayerVsAIForm()
         {
             InitializeComponent();
             board = new Chessboard();
@@ -210,7 +219,7 @@ namespace Chess_App
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button1_Click_1(object sender, EventArgs e)
         {
             MainMenu mainMenuForm = new MainMenu();
             mainMenuForm.Show();

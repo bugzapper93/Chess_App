@@ -21,6 +21,7 @@ namespace Chess_App
         public bool possible_capture;
         public int captured_piece;
         public Position capture_pos;
+        internal bool is_en_passant;
     }
     public struct Moveset
     {
@@ -102,7 +103,8 @@ namespace Chess_App
                                         capture = true,
                                         possible_capture = true,
                                         captured_piece = Pieces.Get_Value(board.pieces, pawn_target_pos),
-                                        capture_pos = new Position { row = i, column = j + var }
+                                        capture_pos = new Position { row = i, column = j + var },
+                                        is_en_passant = true
                                     });
                                 }
                                 if (Pieces.Check_Move(board.pieces, start, considered_position) && Pieces.Get_Value(board.pieces, considered_position) != 0)

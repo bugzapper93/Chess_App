@@ -98,11 +98,45 @@ namespace Chess_App
 
                 if (col < Variables.Board_Size && row < Variables.Board_Size)
                 {
-                    pieces[row, col] = new Piece { value = current_piece, position = new Position { row = row, column = col }, has_moved = has_moved };
+                    pieces[row, col] = new Piece
+                    {
+                        value = current_piece,
+                        position = new Position
+                        {
+                            row = row,
+                            column = col
+                        },
+                        has_moved = has_moved
+                    };
                     col++;
                 }
             }
             return pieces;
+        }
+        public static string PieceValueToString(int value)
+        {
+            foreach (var entry in Pieces_Notation)
+            {
+                if (entry.Value == value)
+                {
+                    return entry.Key.ToString();  
+                }
+            }
+
+            return string.Empty;
+        }
+        public static int GetPieceValue(int piece)
+        {
+            switch (piece & ~24)
+            {
+                case King: return 1000;
+                case Queen: return 9;
+                case Rook: return 5;
+                case Bishop: return 3;
+                case Knight: return 3;
+                case Pawn: return 1;
+                default: return 0;
+            }
         }
     }
 }
