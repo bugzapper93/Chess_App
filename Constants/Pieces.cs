@@ -113,7 +113,7 @@ namespace Chess_App
             }
             return pieces;
         }
-        public static string PieceValueToString(int value)
+        public static string Piece_Value_To_String(int value)
         {
             foreach (var entry in Pieces_Notation)
             {
@@ -125,7 +125,7 @@ namespace Chess_App
 
             return string.Empty;
         }
-        public static int GetPieceValue(int piece)
+        public static int Get_Piece_Value(int piece)
         {
             switch (piece & ~24)
             {

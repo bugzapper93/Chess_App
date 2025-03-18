@@ -423,8 +423,10 @@ namespace Chess_App
                                     continue;
                                 }
                                 if ((board.squares[considered_position.row, considered_position.column].danger_black && color == Pieces.White))
+                                {
                                     continue;
-
+                                }
+                                    
                                 int square_value = Pieces.Get_Value(board.pieces, considered_position);
 
                                 if (square_value == 0)
@@ -457,6 +459,14 @@ namespace Chess_App
                 }
             Moveset moveset = new Moveset { moves = moves, pins = pins };
             return moveset;
+        }
+        public static List<Move> List_Possible_Moves_For_Piece(Position start_pos, List<Move> moves)
+        {
+            List<Move> possible = new List<Move>();
+            foreach (Move move in moves)
+                if (Compare_Positions(move.start_pos, start_pos))
+                    possible.Add(move);
+            return possible;
         }
         public static bool Compare_Positions(Position pos_1, Position pos_2)
         {

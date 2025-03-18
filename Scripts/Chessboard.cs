@@ -41,25 +41,22 @@ namespace Chess_App
         {
             squares = new Square[Variables.Board_Size, Variables.Board_Size];
             Moveset moveset = Moves.Get_All_Possible_Moves(this);
-            //foreach (Position pin in moveset.pins)
-            //    pieces[pin.row, pin.column].pinned = true;
-            //foreach (Move move in moveset.moves)
-            //{
-            //    Position target = move.end_pos;
-            //    if (move.possible_capture)
-            //        squares[target.row, target.column] = new Square { danger_type = move.piece & 24 };
-                    
-            //}
         }
         private void Update_Danger()
         {
+            possible_moves_pins = Moves.Get_All_Possible_Moves(this);
             for (int row = 0; row < Variables.Board_Size; row++)
             {
                 for (int col = 0; col < Variables.Board_Size; col++)
                 {
+                    pieces[row, col].pinned = false;
                     squares[row, col].danger_white = false;
                     squares[row, col].danger_black = false;
                 }
+            }
+            foreach (Position pin in possible_moves_pins.pins)
+            {
+                pieces[pin.row, pin.column].pinned = true;
             }
             foreach (Move move in possible_moves_pins.moves)
             {
@@ -107,7 +104,7 @@ namespace Chess_App
             out_move = new Move();
             return false;
         }
-        public void Make_Move(Move move, bool check_valid = true)
+        public string Make_Move(Move move, bool check_valid = true)
         {
             Position start_pos = move.start_pos;
             Position end_pos = move.end_pos;
@@ -128,9 +125,12 @@ namespace Chess_App
             else
                 en_passant_target = null;
 
-            possible_moves_pins = Moves.Get_All_Possible_Moves(this);
             Update_Danger();
+            possible_moves_pins = Moves.Get_All_Possible_Moves(this);
+
             is_white_turn = !is_white_turn;
+
+            return NotationPanelManager.Get_Algebraic_Notation(move);
         }
     }
 }

@@ -31,7 +31,6 @@
             groupBox1 = new GroupBox();
             tableLayoutPanel1 = new TableLayoutPanel();
             groupBox2 = new GroupBox();
-            button1 = new Button();
             groupBox2.SuspendLayout();
             SuspendLayout();
             // 
@@ -86,23 +85,12 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "Moves";
             // 
-            // button1
-            // 
-            button1.Location = new Point(25, 17);
-            button1.Name = "button1";
-            button1.Size = new Size(113, 34);
-            button1.TabIndex = 2;
-            button1.Text = "Back To Menu";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Linen;
             ClientSize = new Size(965, 703);
-            Controls.Add(button1);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -120,6 +108,5 @@
         private GroupBox groupBox1;
         private TableLayoutPanel tableLayoutPanel1;
         private GroupBox groupBox2;
-        private Button button1;
     }
 }

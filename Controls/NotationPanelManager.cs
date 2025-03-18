@@ -15,21 +15,26 @@ namespace Chess_App
         {
             this.tableLayoutPanel = tableLayoutPanel;
         }
-        public void AddRowToTable(string moveNotation, bool isWhiteTurn)
+        public void Add_Row_To_Table(string moveNotation, bool is_white_wurn)
         {
-            if (!isWhiteTurn)
+            //Color current_color_primary = currentRow % 2 == 0 ? Variables.Primary : Variables.Secondary;
+            //Color current_color_secondary = currentRow % 2 == 0 ? Variables.Secondary : Variables.Primary;
+
+            if (is_white_wurn)
             {
-                Label indexLabel = new Label
+                Label index_Label = new Label
                 {
                     Text = (currentRow + 1).ToString(),
+                    Margin = Padding.Empty,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Dock = DockStyle.Fill
                 };
-                tableLayoutPanel.Controls.Add(indexLabel, 0, currentRow);
+                tableLayoutPanel.Controls.Add(index_Label, 0, currentRow);
 
                 Label label1 = new Label
                 {
                     Text = moveNotation,
+                    Margin = Padding.Empty,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Dock = DockStyle.Fill
                 };
@@ -40,6 +45,7 @@ namespace Chess_App
                 Label label2 = new Label
                 {
                     Text = moveNotation,
+                    Margin = Padding.Empty,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Dock = DockStyle.Fill
                 };
@@ -47,19 +53,25 @@ namespace Chess_App
                 currentRow++;
             }
         }
-        public string GetAlgebraicNotation(Position startPos, Position endPos, bool isWhiteTurn, bool isCapture, bool isPawnMove, bool isEnPassant, int pieceType)
+        public static string Get_Algebraic_Notation(Move move)
         {
-            string pieceNotation = Pieces.PieceValueToString(pieceType);
-            char columnStart = (char)('a' + startPos.column);
-            char rowStart = (char)('8' - startPos.row);
+            Position start_pos = move.start_pos;
+            Position end_pos = move.end_pos;
+            bool is_pawn_move = (move.piece & 7) == Pieces.Pawn ? true : false;
+            bool is_capture = move.capture;
+            bool is_en_passant = move.is_en_passant;
 
-            char columnEnd = (char)('a' + endPos.column);
-            char rowEnd = (char)('8' - endPos.row);
+            string pieceNotation = Pieces.Piece_Value_To_String(move.piece);
+            char columnStart = (char)('a' + start_pos.column);
+            char rowStart = (char)('8' - start_pos.row);
+
+            char columnEnd = (char)('a' + end_pos.column);
+            char rowEnd = (char)('8' - end_pos.row);
 
             string notation = "";
-            if (isPawnMove)
+            if (is_pawn_move)
             {
-                if (isCapture)
+                if (is_capture)
                 {
                     notation = $"{columnStart} x {columnEnd}{rowEnd}";
                 }
@@ -68,7 +80,7 @@ namespace Chess_App
                     notation = $"{columnEnd}{rowEnd}";
                 }
 
-                if (isEnPassant)
+                if (is_en_passant)
                 {
                     notation += "(e.p.)";
                 }
@@ -77,7 +89,7 @@ namespace Chess_App
             {
                 notation = $"{pieceNotation.ToString()}{columnEnd}{rowEnd}";
 
-                if (isCapture)
+                if (is_capture)
                 {
                     notation = $"{pieceNotation.ToString()} x {columnEnd}{rowEnd}";
                 }
