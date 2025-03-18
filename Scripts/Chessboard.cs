@@ -29,6 +29,7 @@ namespace Chess_App
             Initialize_Pieces(FEN_string);
             Initialize_Board();
 
+            possible_moves_pins = new Moveset { moves = new List<Move>(), pins = new List<Pin>(), defended = new List<Position>() };
             possible_moves_pins = Moves.Get_All_Possible_Moves(this);
 
             Update_Danger();
@@ -44,7 +45,6 @@ namespace Chess_App
         }
         private void Update_Danger()
         {
-            possible_moves_pins = Moves.Get_All_Possible_Moves(this);
             for (int row = 0; row < Variables.Board_Size; row++)
             {
                 for (int col = 0; col < Variables.Board_Size; col++)
@@ -54,9 +54,14 @@ namespace Chess_App
                     squares[row, col].danger_black = false;
                 }
             }
-            foreach (Position pin in possible_moves_pins.pins)
+            foreach (Pin pin in possible_moves_pins.pins)
             {
-                pieces[pin.row, pin.column].pinned = true;
+                pieces[pin.pinned.row, pin.pinned.column].pinned = true;
+            }
+            foreach (Position defended in possible_moves_pins.defended)
+            {
+                squares[defended.row, defended.column].danger_black = true;
+                squares[defended.row, defended.column].danger_white = true;
             }
             foreach (Move move in possible_moves_pins.moves)
             {
@@ -84,7 +89,6 @@ namespace Chess_App
                                 squares[considered_position.row, considered_position.column].danger_white = true;
                             if (danger_color == Pieces.Black)
                                 squares[considered_position.row, considered_position.column].danger_black = true;
-                            
                         }
                     }
                 }
@@ -125,10 +129,10 @@ namespace Chess_App
             else
                 en_passant_target = null;
 
-            Update_Danger();
             possible_moves_pins = Moves.Get_All_Possible_Moves(this);
-
+            Update_Danger();
             is_white_turn = !is_white_turn;
+            possible_moves_pins = Moves.Get_All_Possible_Moves(this);
 
             return NotationPanelManager.Get_Algebraic_Notation(move);
         }

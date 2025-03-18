@@ -62,6 +62,12 @@ namespace Chess_App
         {
             if (end.row >= 8 || end.row < 0 || end.column >= 8 || end.column < 0)
                 return false;
+            //if ((pieces[start.row, start.column].value & 24) == (pieces[end.row, end.column].value & 24))
+            //    return false;
+            return true;
+        }
+        public static bool Check_Friendly_Pos(Piece[,] pieces, Position start, Position end)
+        {
             if ((pieces[start.row, start.column].value & 24) == (pieces[end.row, end.column].value & 24))
                 return false;
             return true;
