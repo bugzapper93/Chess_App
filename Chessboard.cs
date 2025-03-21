@@ -18,6 +18,7 @@ namespace Chess_App
         public Square[,] squares;
         public Position? en_passant_target = null;
         public Moveset possible_moves_pins;
+        public int currentPlayer = Pieces.White;
         public int? en_passant_target_color = null;
         public bool is_white_turn = true;
         string current_moves = "";
@@ -36,6 +37,10 @@ namespace Chess_App
         private void Initialize_Pieces(string FEN_string)
         {
             pieces = Pieces.Parse_FEN(FEN_string);
+        }
+        public void SwitchPlayer()
+        {
+            currentPlayer = (currentPlayer == Pieces.White) ? Pieces.Black : Pieces.White;
         }
         private void Initialize_Board()
         {
@@ -131,6 +136,23 @@ namespace Chess_App
             possible_moves_pins = Moves.Get_All_Possible_Moves(this);
             Update_Danger();
             is_white_turn = !is_white_turn;
+        }
+        public Chessboard Clone()
+        {
+            Chessboard clone = new Chessboard
+            {
+                pieces = (Piece[,])this.pieces.Clone(),
+                squares = (Square[,])this.squares.Clone(),
+                en_passant_target = this.en_passant_target,
+                en_passant_target_color = this.en_passant_target_color,
+                is_white_turn = this.is_white_turn,
+                possible_moves_pins = new Moveset
+                {
+                    moves = new List<Move>(this.possible_moves_pins.moves),
+                    pins = new List<Position>(this.possible_moves_pins.pins)
+                }
+            };
+            return clone;
         }
     }
 }

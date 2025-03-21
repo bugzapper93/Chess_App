@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Chess;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -25,6 +27,7 @@ namespace Chess_App
         Color boardFirstColor = Color.FromArgb(208, 206, 241);
         Color boardSecondColor = Color.FromArgb(35, 41, 76);
         private NotationPanelManager notationPanelManager;
+        private AIPlayer aiPlayer;
         public PlayerVsAIForm()
         {
             InitializeComponent();
@@ -35,9 +38,9 @@ namespace Chess_App
             background = new Panel[Variables.Board_Size, Variables.Board_Size];
 
             notationPanelManager = new NotationPanelManager(tableLayoutPanel1);
-
             Initialize_Board();
             Initialize_Pieces();
+            aiPlayer = new AIPlayer(2, Pieces.Black, 100);
         }
         private void Initialize_Pieces()
         {
@@ -81,9 +84,54 @@ namespace Chess_App
         {
             Panel piece = new Panel();
             piece.Size = new Size(Variables.Square_Size - Variables.Margin, Variables.Square_Size - Variables.Margin);
-            piece.BackColor = (value & 24) == Pieces.White ? Color.White : Color.Black;
-
+            int pieceType = value & 7;
+            int pieceColor = value & 24;
+            //piece.BackColor = (value & 24) == Pieces.White ? Color.White : Color.Black;
+            string imageName = GetPieceImageName(pieceType, pieceColor);
+            string imagePath = $"Resources/{imageName}.png";
+            if (System.IO.File.Exists(imagePath))
+            {
+                piece.BackgroundImage = Image.FromFile(imagePath);
+                piece.BackgroundImageLayout = ImageLayout.Stretch;
+                piece.BackColor = Color.Transparent;
+            }
+            else
+            {
+                piece.BackColor = pieceColor == Pieces.White ? Color.White : Color.Black;
+            }
             return piece;
+        }
+        private static string GetPieceImageName(int pieceType, int pieceColor)
+        {
+            string color = pieceColor == Pieces.White ? "white" : "black";
+            string type = "";
+
+            switch (pieceType)
+            {
+                case Pieces.Pawn:
+                    type = "pawn";
+                    break;
+                case Pieces.Rook:
+                    type = "rook";
+                    break;
+                case Pieces.Knight:
+                    type = "knight";
+                    break;
+                case Pieces.Bishop:
+                    type = "bishop";
+                    break;
+                case Pieces.Queen:
+                    type = "queen";
+                    break;
+                case Pieces.King:
+                    type = "king";
+                    break;
+                default:
+                    type = "empty"; 
+                    break;
+            }
+
+            return $"{type}_{color}";
         }
         private void Highlight_Board(Position piece_pos)
         {
@@ -170,7 +218,7 @@ namespace Chess_App
             Point position = new Point(Variables.Margin / 2 + start_pos.X + col * Variables.Square_Size, Variables.Margin / 2 + start_pos.Y + row * Variables.Square_Size);
             return position;
         }
-        private void Piece_Mouse_Up(object sender, MouseEventArgs e)
+        private async void Piece_Mouse_Up(object sender, MouseEventArgs e)
         {
             if (selected_position.row != -1 && selected_position.column != -1)
             {
@@ -200,7 +248,6 @@ namespace Chess_App
                     int pieceType = move.piece & 7;
                     isPawnMove = pieceType == Pieces.Pawn;
                     isEnPassant = move.is_en_passant;
-
                     selected.Location = Get_Target_Location(target_row, target_col);
                     piecesDisplay[target_row, target_col] = selected;
                     piecesDisplay[selected_position.row, selected_position.column] = null;
@@ -208,6 +255,13 @@ namespace Chess_App
                     board.Make_Move(move, false);
                     string moveNotation = notationPanelManager.GetAlgebraicNotation(selected_position, target_pos, board.is_white_turn, isCapture, isPawnMove, isEnPassant, move.piece);
                     notationPanelManager.AddRowToTable(moveNotation, board.is_white_turn);
+
+                    board.SwitchPlayer();
+
+                    if (board.currentPlayer == Pieces.Black && !board.is_white_turn)
+                    {
+                        MakeAIMove();
+                    }
                 }
                 else
                 {
@@ -219,6 +273,48 @@ namespace Chess_App
             }
         }
 
+        private void MakeAIMove()
+        {
+            Move bestMove = aiPlayer.GetBestMove(board);
+
+            if (bestMove.Equals(default(Move)))
+            {
+                return;
+            }
+            if (board.is_white_turn) return;
+            int pieceColor = board.pieces[bestMove.start_pos.row, bestMove.start_pos.column].value & 24;
+            if (pieceColor != aiPlayer.GetColor())
+            {
+                return;
+            }
+
+            Panel aiPiece = piecesDisplay[bestMove.start_pos.row, bestMove.start_pos.column];
+            if (aiPiece == null)
+            {
+                return;
+            }
+
+            if (piecesDisplay[bestMove.end_pos.row, bestMove.end_pos.column] != null)
+            {
+                Controls.Remove(piecesDisplay[bestMove.end_pos.row, bestMove.end_pos.column]);
+                piecesDisplay[bestMove.end_pos.row, bestMove.end_pos.column] = null;
+            }
+
+            aiPiece.Location = Get_Target_Location(bestMove.end_pos.row, bestMove.end_pos.column);
+
+            piecesDisplay[bestMove.end_pos.row, bestMove.end_pos.column] = aiPiece;
+            piecesDisplay[bestMove.start_pos.row, bestMove.start_pos.column] = null;
+
+            board.Make_Move(bestMove, false);
+
+            string moveNotation = notationPanelManager.GetAlgebraicNotation(bestMove.start_pos, bestMove.end_pos, board.is_white_turn, bestMove.capture, (bestMove.piece & 7) == Pieces.Pawn, bestMove.is_en_passant, bestMove.piece);
+            notationPanelManager.AddRowToTable(moveNotation, board.is_white_turn);
+
+            aiPiece.BringToFront();
+            this.Refresh();
+
+            board.SwitchPlayer();
+        }
         private void button1_Click_1(object sender, EventArgs e)
         {
             MainMenu mainMenuForm = new MainMenu();
