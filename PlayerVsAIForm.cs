@@ -50,7 +50,7 @@ namespace Chess_App
                 {
                     if (board.pieces[i, j].value != 0)
                     {
-                        Panel piece = Create_Piece(board.pieces[i, j].value);
+                        Panel piece = Create_Piece(board.pieces[i, j].value, i, j);
                         piece.Location = new Point(Variables.Margin / 2 + start_pos.X + j * Variables.Square_Size, Variables.Margin / 2 + start_pos.Y + i * Variables.Square_Size);
                         piece.MouseDown += Piece_Mouse_Down;
                         piece.MouseMove += Piece_Mouse_Move;
@@ -80,26 +80,29 @@ namespace Chess_App
                     background[i, j] = panel;
                 }
         }
-        private static Panel Create_Piece(int value)
+        private Panel Create_Piece(int value, int row, int col)
         {
             Panel piece = new Panel();
             piece.Size = new Size(Variables.Square_Size - Variables.Margin, Variables.Square_Size - Variables.Margin);
             int pieceType = value & 7;
             int pieceColor = value & 24;
-            //piece.BackColor = (value & 24) == Pieces.White ? Color.White : Color.Black;
             string imageName = GetPieceImageName(pieceType, pieceColor);
             string imagePath = $"Resources/{imageName}.png";
             if (System.IO.File.Exists(imagePath))
             {
                 piece.BackgroundImage = Image.FromFile(imagePath);
                 piece.BackgroundImageLayout = ImageLayout.Stretch;
-                piece.BackColor = Color.Transparent;
+                piece.BackColor = GetColorUnderControl(piece, row, col);
             }
             else
             {
                 piece.BackColor = pieceColor == Pieces.White ? Color.White : Color.Black;
             }
             return piece;
+        }
+        private Color GetColorUnderControl(Panel control, int row, int col)
+        {
+            return background[row, col].BackColor;
         }
         private static string GetPieceImageName(int pieceType, int pieceColor)
         {
@@ -176,14 +179,6 @@ namespace Chess_App
             }
             return true;
         }
-        private void Validate_Pieces()
-        {
-            for (int i = 0; i < Variables.Board_Size; i++)
-                for (int j = 0; j < Variables.Board_Size; j++)
-                {
-                    //if (board.pieces[i, j].value == 0)
-                }
-        }
         private void Piece_Mouse_Down(object sender, MouseEventArgs e)
         {
             if (sender is Panel panel)
@@ -203,6 +198,7 @@ namespace Chess_App
                             original_location = e.Location;
                         }
                     }
+                UpdatePieceBackColor(piece);
             }
         }
         private void Piece_Mouse_Move(object sender, MouseEventArgs e)
@@ -210,7 +206,9 @@ namespace Chess_App
             if (is_dragging && e.Button == MouseButtons.Left)
             {
                 Point mouse_pos = this.PointToClient(Cursor.Position);
-                piecesDisplay[selected_position.row, selected_position.column].Location = new Point(mouse_pos.X - original_location.X, mouse_pos.Y - original_location.Y);
+                Panel piece = piecesDisplay[selected_position.row, selected_position.column];
+                piece.Location = new Point(mouse_pos.X - original_location.X, mouse_pos.Y - original_location.Y);
+                UpdatePieceBackColor(piece);
             }
         }
         private Point Get_Target_Location(int row, int col)
@@ -267,8 +265,10 @@ namespace Chess_App
                 {
                     selected.Location = Get_Target_Location(selected_position.row, selected_position.column);
                 }
+                UpdatePieceBackColor(selected);
                 selected_position = new Position { row = -1, column = -1 };
                 is_dragging = false;
+
                 Reset_Board();
             }
         }
@@ -312,8 +312,18 @@ namespace Chess_App
 
             aiPiece.BringToFront();
             this.Refresh();
-
+            UpdatePieceBackColor(aiPiece);
             board.SwitchPlayer();
+        }
+        private void UpdatePieceBackColor(Panel piece)
+        {
+            int col = (piece.Location.X - start_pos.X) / Variables.Square_Size;
+            int row = (piece.Location.Y - start_pos.Y) / Variables.Square_Size;
+
+            if (row >= 0 && row < Variables.Board_Size && col >= 0 && col < Variables.Board_Size)
+            {
+                piece.BackColor = (row + col) % 2 == 0 ? boardFirstColor : boardSecondColor;
+            }
         }
         private void button1_Click_1(object sender, EventArgs e)
         {
